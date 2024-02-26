@@ -1,3 +1,25 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/settings.json
+FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Demo/Common/Minimal/BlockQ.o
+FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Demo/Common/Minimal/blocktim.o
+FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Demo/Common/Minimal/comtest.o
+FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Demo/Common/Minimal/crflash.o
+FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Demo/Common/Minimal/integer.o
+FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Demo/dsPIC_MPLAB/main.o
+FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Demo/dsPIC_MPLAB/new_lcd.o
+FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Demo/dsPIC_MPLAB/new_serial.o
+FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Demo/dsPIC_MPLAB/RTOSDemo_dsPIC.cof
+FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Demo/dsPIC_MPLAB/RTOSDemo_dsPIC.hex
+FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Demo/dsPIC_MPLAB/RTOSDemo_dsPIC.mcp
+FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Demo/dsPIC_MPLAB/RTOSDemo_dsPIC.mcs
+FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Demo/dsPIC_MPLAB/RTOSDemo.mcw
+FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Demo/dsPIC_MPLAB/timertest.o
+FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Demo/dsPIC_MPLAB/ParTest/ParTest.o
+FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Source/croutine.o
+FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Source/list.o
+FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Source/queue.o
+FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Source/tasks.o
+FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Source/portable/MemMang/heap_1.o
+FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Source/portable/MPLAB/PIC24_dsPIC/port.o
+FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Source/portable/MPLAB/PIC24_dsPIC/portasm_dsPIC.o

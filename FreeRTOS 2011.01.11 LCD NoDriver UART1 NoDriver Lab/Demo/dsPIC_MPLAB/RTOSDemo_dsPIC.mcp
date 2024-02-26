@@ -129,7 +129,7 @@ file_020=..\..\source\include\queue.h
 file_021=FreeRTOSConfig.h
 file_022=new_lcd.h
 file_023=new_serial.h
-file_024=C:\Program Files\Microchip\MPLAB C30\lib\libq-dsp-coff.a
+file_024=C:\Program Files (x86)\Microchip\MPLAB C30\lib\libq-dsp-coff.a
 file_025=p33FJ128MC802.gld
 [SUITE_INFO]
 suite_guid={479DDE59-4D56-455E-855E-FFF59A3DB57E}
