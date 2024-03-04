@@ -22,6 +22,7 @@
 #include "new_lcd.h"
 #include "new_serial.h"
 #include "libq.h"
+#include "pwm.h"
 //#include "serial.h"
 
 /* Demo task priorities. */
@@ -118,7 +119,7 @@ void Task2(void *params) {
 int main( void )
 {
 	prvSetupHardware();
-
+	initPwm();
 	xTaskCreate(Task1, (signed portCHAR *) "Ts1", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL);
 	xTaskCreate(Task2, (signed portCHAR *) "Ts2", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL);
 	
