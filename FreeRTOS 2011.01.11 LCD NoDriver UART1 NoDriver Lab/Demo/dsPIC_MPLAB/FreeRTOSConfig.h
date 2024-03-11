@@ -5,7 +5,7 @@
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H
 
-#include <p33FJ128MC802.h>
+#include "p33fxxxx.h"
 
 /*-----------------------------------------------------------
  * Application specific definitions.

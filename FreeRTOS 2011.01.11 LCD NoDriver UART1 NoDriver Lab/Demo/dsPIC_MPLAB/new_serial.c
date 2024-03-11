@@ -10,7 +10,7 @@
 /* Demo app include files. */
 #include "serial.h"
 #include "new_serial.h"
-#include <p33FJ128MC802.h>
+#include "p33fxxxx.h"
 
 /* Hardware setup. */
 #define serOUTPUT						0
