@@ -23,6 +23,7 @@
 #include "new_serial.h"
 #include "libq.h"
 #include "pwm.h"
+#include "ds18s20.h"
 //#include "serial.h"
 
 /* Demo task priorities. */
@@ -86,6 +87,8 @@ static void prvSetupHardware( void );
 /* The queue used to send messages to the LCD task. */
 static xQueueHandle xUART1_Queue;
 
+float temp = 0;
+
 void Task1(void *params) {
 	static int i=0;
 
@@ -93,6 +96,7 @@ void Task1(void *params) {
 		{		
 		//vParTestToggleLED(15);	
 		vSerialPutString( NULL, "T1", comNO_BLOCK );
+		temp = ds1820_read();
 		vTaskDelay(250);
 		}
 }
@@ -120,6 +124,7 @@ int main( void )
 {
 	prvSetupHardware();
 	initPwm();
+	init_ds1820();
 	xTaskCreate(Task1, (signed portCHAR *) "Ts1", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL);
 	xTaskCreate(Task2, (signed portCHAR *) "Ts2", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL);
 	
