@@ -24,6 +24,7 @@
 #include "libq.h"
 // #include "serial.h"
 
+#define DEBOUNCE_MS 200U
 /* Demo task priorities. */
 #define mainBLOCK_Q_PRIORITY (tskIDLE_PRIORITY + 2)
 #define mainCHECK_TASK_PRIORITY (tskIDLE_PRIORITY + 3)
@@ -85,26 +86,37 @@ static void prvSetupHardware(void);
 /* The queue used to send messages to the LCD task. */
 static xQueueHandle xUART1_Queue;
 xTaskHandle task_idle, task_app;
-volatile unsigned int app_on = 0U;
+volatile unsigned char app_on = 0U;
+volatile portTickType last_time = 0U;
+volatile portTickType current_time = 0U;
 void __attribute__((interrupt, no_auto_psv)) _INT0Interrupt(void)
 {
-	app_on ^= 1U;
+	current_time = xTaskGetTickCount();
+	if (current_time - last_time > DEBOUNCE_MS){
+		app_on ^= 1U;
+		last_time = current_time;
+	}
 	_INT0IF = 0; // Resetam flagul corespunzator intreruperii
 				 // INT0 pentru a nu se reapela rutina de intrerupere
 }
-
+unsigned char stare_rb15 = 0;
 void Task_StareApp(void *params)
 {
 	while (1)
 	{
-		if (app_on == 0U)
+		if (app_on == 0)
 		{
-			_RB15 ^= 1U;
+			_RB15 ^= 1U; // aici trb rb0
+			stare_rb15 = _RB15;
 			vTaskDelay(1000);
 		}
-		else
+		else if(app_on == 1)
 		{
+			_RB15 = 0U;
+			stare_rb15  = _RB15;
+
 		}
+		
 	}
 }
 int main(void)
@@ -112,7 +124,7 @@ int main(void)
 	prvSetupHardware();
 
 	TRISB = 0x0000;
-	_TRISB7 = 1;  // RB7 este setat ca intrare intrerupere
+	_TRISB7 = 1;  // RB7(Buton sw1 pe placuta) este setat ca intrare intrerupere
 	_TRISB15 = 0; // RB0 este setat ca iesire
 	_TRISB14 = 0;
 	_TRISB13 = 0;
@@ -127,7 +139,7 @@ int main(void)
 	_INT0IE = 1; // Se permite lucrul cu întreruperea INT0
 	_INT0EP = 1; // Se stabileşte pe ce front se generează INT0
 
-	// xTaskCreate(Task_StareApp, (signed portCHAR *)"T_app", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, &task_app);
+	xTaskCreate(Task_StareApp, (signed portCHAR *)"T_app", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, &task_app);
 	/* Finally start the scheduler. */
 	vTaskStartScheduler();
 
