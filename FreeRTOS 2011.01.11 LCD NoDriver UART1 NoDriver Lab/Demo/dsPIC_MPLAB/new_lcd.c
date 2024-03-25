@@ -1,15 +1,12 @@
+#include "p33Fxxxx.h"
 #include "new_lcd.h"
-#include "FreeRTOS.h"
-#include "task.h"
 #include "string.h"	// pentru functia strlen()
-#include "queue.h"
 
 ////////////////////////////////PENTRU LCD//////////////////////////////////////////
-#define LCD_ON _RB7
-#define LCD_RS _RB6
-#define LCD_RW _RB5
-#define LCD_E  _RB4
-#define LCD_BL _RB3
+#define LCD_RS _RB11
+#define LCD_RW _RB10
+#define LCD_E  _RB9
+#define LCD_BL _RB8
 
 // Intirziere in microsecunde
 void delayus(int us){
@@ -35,6 +32,8 @@ void delayms(int ms)
 
 // Depune datele pe bitii RB15-RB12
 void LCD_DATA_OR(int val)	{	PORTB = PORTB | (val<<12);}
+//void LCD_DATA_OR(int val)	{	PORTB = PORTB | ((val&0x000F)<<12);}
+
 // Sterge datele de pe bitii RB15-RB12
 void LCD_DATA_AND(int val)	{	PORTB = PORTB & ((val<<12)|0xFFF);}
 
@@ -87,7 +86,6 @@ void LCD_line(int linie)
 void LCD_init(void)
 {
 	// Alimenteaza LCD-ul
-	LCD_ON = 1;
 	delayms(40);
 	
 	// Function set
@@ -168,3 +166,10 @@ void LCD_On_Off(int On_Off)
   LCD_DATA_AND(~ax);
   delayus(40);
 }
+
+void LCD_LED(int On_Off)
+{
+	if (On_Off == 2)	LCD_BL = ~LCD_BL;
+	else	LCD_BL = On_Off;
+}
+
