@@ -24,7 +24,7 @@
 #include "libq.h"
 // #include "serial.h"
 
-#define DEBOUNCE_MS 200U
+#define DEBOUNCE_MS 400U
 /* Demo task priorities. */
 #define mainBLOCK_Q_PRIORITY (tskIDLE_PRIORITY + 2)
 #define mainCHECK_TASK_PRIORITY (tskIDLE_PRIORITY + 3)
@@ -99,30 +99,8 @@ void __attribute__((interrupt, no_auto_psv)) _INT0Interrupt(void)
 	_INT0IF = 0; // Resetam flagul corespunzator intreruperii
 				 // INT0 pentru a nu se reapela rutina de intrerupere
 }
-unsigned char stare_rb15 = 0;
-void Task_StareApp(void *params)
+void init_PORTB_AND_INT()
 {
-	while (1)
-	{
-		if (app_on == 0)
-		{
-			_RB15 ^= 1U; // aici trb rb0
-			stare_rb15 = _RB15;
-			vTaskDelay(1000);
-		}
-		else if(app_on == 1)
-		{
-			_RB15 = 0U;
-			stare_rb15  = _RB15;
-
-		}
-		
-	}
-}
-int main(void)
-{
-	prvSetupHardware();
-
 	TRISB = 0x0000;
 	_TRISB7 = 1;  // RB7(Buton sw1 pe placuta) este setat ca intrare intrerupere
 	_TRISB15 = 0; // RB0 este setat ca iesire
@@ -138,8 +116,57 @@ int main(void)
 	_INT0IF = 0; // Resetem flagul coresp. intreruperii INT0
 	_INT0IE = 1; // Se permite lucrul cu întreruperea INT0
 	_INT0EP = 1; // Se stabileşte pe ce front se generează INT0
+}
+unsigned char stare_rb15 = 0;
+unsigned char last_state_app = -1;
+void Task_StareApp(void *params)
+{
+	LCD_init();
+	LCD_On_Off(ON);
+	LCD_LED(ON);
+	clear();
+	while (1)
+	{
+		if (app_on == 0)
+		{
+			last_state_app = app_on;
+			_RB15 ^= 1U; // aici trb rb0
+			stare_rb15 = _RB15;
+			vTaskDelay(1000);
+		}
+		else if(app_on == 1)
+		{
+			last_state_app = app_on;
+			_RB15 = 0U;
+			stare_rb15  = _RB15;
+		}
+		if(last_state_app != app_on)
+		{
+			clear();
+			vTaskDelay(50);
+			if(app_on == 1)
+			{
+				
+				LCD_line(1);
+				LCD_printf("APP_ON");
+			}
+			if(app_on == 0)
+			{
+				
+				LCD_line(1);
+				LCD_printf("APP_OFF");
+			}
+		}
 
+		
+	}
+}
+int main(void)
+{
+	prvSetupHardware();
+	init_PORTB_AND_INT();
 	xTaskCreate(Task_StareApp, (signed portCHAR *)"T_app", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, &task_app);
+
 	/* Finally start the scheduler. */
 	vTaskStartScheduler();
 

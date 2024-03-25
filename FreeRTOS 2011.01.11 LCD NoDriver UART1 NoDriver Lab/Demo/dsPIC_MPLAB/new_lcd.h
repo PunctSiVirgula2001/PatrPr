@@ -2,9 +2,13 @@
 //#define PMAEN				*( ( unsigned short * ) 0x60c )
 
 /*-----------------------------------------------------------*/
-#define On		1
-#define Off		0
+#define ON		1
+#define OFF		0
 #define Toggle	2
+#define LCD_RS _RB11
+#define LCD_RW _RB10
+#define LCD_E  _RB9
+#define LCD_BL _RB8
 
 void delayus(int us);
 void delayms(int ms);

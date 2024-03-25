@@ -3,10 +3,7 @@
 #include "string.h"	// pentru functia strlen()
 
 ////////////////////////////////PENTRU LCD//////////////////////////////////////////
-#define LCD_RS _RB11
-#define LCD_RW _RB10
-#define LCD_E  _RB9
-#define LCD_BL _RB8
+
 
 // Intirziere in microsecunde
 void delayus(int us){
