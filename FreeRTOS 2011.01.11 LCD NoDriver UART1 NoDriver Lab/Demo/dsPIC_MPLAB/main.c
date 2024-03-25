@@ -87,7 +87,15 @@ static void prvSetupHardware( void );
 /* The queue used to send messages to the LCD task. */
 static xQueueHandle xUART1_Queue;
 
-float temp = 0;
+void TaskCerinta2(void *params) {
+    float temp = 0;
+	for (;;)
+		{			
+		    temp = ds1820_read();
+            
+		    vTaskDelay(250);
+		}
+}
 
 void Task1(void *params) {
 	static int i=0;
@@ -96,7 +104,6 @@ void Task1(void *params) {
 		{		
 		//vParTestToggleLED(15);	
 		vSerialPutString( NULL, "T1", comNO_BLOCK );
-		temp = ds1820_read();
 		vTaskDelay(250);
 		}
 }
@@ -127,7 +134,7 @@ int main( void )
 	init_ds1820();
 	xTaskCreate(Task1, (signed portCHAR *) "Ts1", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL);
 	xTaskCreate(Task2, (signed portCHAR *) "Ts2", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL);
-	
+	xTaskCreate(TaskCerinta2, (signed portCHAR *) "TsC2", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL);
 	/* Finally start the scheduler. */
 	vTaskStartScheduler();
 
