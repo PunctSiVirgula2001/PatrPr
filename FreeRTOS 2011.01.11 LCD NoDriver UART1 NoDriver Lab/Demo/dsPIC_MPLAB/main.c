@@ -22,7 +22,9 @@
 #include "new_lcd.h"
 #include "new_serial.h"
 #include "libq.h"
-// #include "serial.h"
+#include "pwm.h"
+#include "ds18s20.h"
+//#include "serial.h"
 
 #define DEBOUNCE_MS 400U
 /* Demo task priorities. */
@@ -85,6 +87,16 @@ static void prvSetupHardware(void);
 
 /* The queue used to send messages to the LCD task. */
 static xQueueHandle xUART1_Queue;
+
+void TaskCerinta2(void *params) {
+    float temp = 0;
+	for (;;)
+		{			
+		    temp = ds1820_read();
+            
+		    vTaskDelay(250);
+		}
+}
 xTaskHandle task_idle, task_app;
 volatile unsigned char app_on = 0U;
 volatile portTickType last_time = 0U;
@@ -164,9 +176,11 @@ void Task_StareApp(void *params)
 int main(void)
 {
 	prvSetupHardware();
+	initPwm();
+	init_ds1820();
 	init_PORTB_AND_INT();
+	xTaskCreate(TaskCerinta2, (signed portCHAR *) "TsC2", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL);
 	xTaskCreate(Task_StareApp, (signed portCHAR *)"T_app", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, &task_app);
-
 	/* Finally start the scheduler. */
 	vTaskStartScheduler();
 
