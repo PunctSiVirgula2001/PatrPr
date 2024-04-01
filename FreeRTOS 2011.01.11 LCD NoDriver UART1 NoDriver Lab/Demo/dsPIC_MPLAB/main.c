@@ -24,7 +24,7 @@
 #include "libq.h"
 #include "pwm.h"
 #include "ds18s20.h"
-//#include "serial.h"
+// #include "serial.h"
 
 #define DEBOUNCE_MS 400U
 /* Demo task priorities. */
@@ -88,14 +88,14 @@ static void prvSetupHardware(void);
 /* The queue used to send messages to the LCD task. */
 static xQueueHandle xUART1_Queue;
 
-void TaskCerinta2(void *params) {
-    float temp = 0;
+void TaskCerinta2(void *params)
+{
+	float temp = 0;
 	for (;;)
-		{			
-		    temp = ds1820_read();
-            
-		    vTaskDelay(250);
-		}
+	{
+		temp = ds1820_read();
+		vTaskDelay(250);
+	}
 }
 xTaskHandle task_idle, task_app;
 volatile unsigned char app_on = 0U;
@@ -104,7 +104,8 @@ volatile portTickType current_time = 0U;
 void __attribute__((interrupt, no_auto_psv)) _INT0Interrupt(void)
 {
 	current_time = xTaskGetTickCount();
-	if (current_time - last_time > DEBOUNCE_MS){
+	if (current_time - last_time > DEBOUNCE_MS)
+	{
 		app_on ^= 1U;
 		last_time = current_time;
 	}
@@ -146,31 +147,29 @@ void Task_StareApp(void *params)
 			stare_rb15 = _RB15;
 			vTaskDelay(1000);
 		}
-		else if(app_on == 1)
+		else if (app_on == 1)
 		{
 			last_state_app = app_on;
 			_RB15 = 0U;
-			stare_rb15  = _RB15;
+			stare_rb15 = _RB15;
 		}
-		if(last_state_app != app_on)
+		if (last_state_app != app_on)
 		{
 			clear();
 			vTaskDelay(50);
-			if(app_on == 1)
+			if (app_on == 1)
 			{
-				
+
 				LCD_line(1);
 				LCD_printf("APP_ON");
 			}
-			if(app_on == 0)
+			if (app_on == 0)
 			{
-				
+
 				LCD_line(1);
 				LCD_printf("APP_OFF");
 			}
 		}
-
-		
 	}
 }
 int main(void)
@@ -179,7 +178,7 @@ int main(void)
 	initPwm();
 	init_ds1820();
 	init_PORTB_AND_INT();
-	xTaskCreate(TaskCerinta2, (signed portCHAR *) "TsC2", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL);
+	xTaskCreate(TaskCerinta2, (signed portCHAR *)"TsC2", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL);
 	xTaskCreate(Task_StareApp, (signed portCHAR *)"T_app", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, &task_app);
 	/* Finally start the scheduler. */
 	vTaskStartScheduler();
