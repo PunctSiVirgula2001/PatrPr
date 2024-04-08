@@ -5,12 +5,13 @@ void initPwm(){
 
  P1TCONbits.PTOPS = 0; // Timer base output scale 
  P1TCONbits.PTMOD = 0; // Free running 
+ P1TCONbits.PTCKPS = 3; // prescaler 16
  P1TMRbits.PTDIR = 0; // Numara in sus pana cand timerul = perioada 
  P1TMRbits.PTMR = 0; // Baza de timp 
 
- P1DC3 = 0x7530; 
+ P1DC3 = PWM_SERVO_MAX;
  
- P1TPER = 0x4E20; 
+ P1TPER = 12300; //50 hz
 
  PWM1CON1bits.PMOD3 = 1; // Canalele PWM3H si PWM3L sunt independente
 

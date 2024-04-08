@@ -2,7 +2,6 @@
 .vscode/launch.json
 .vscode/settings.json
 FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Demo/Common/
-FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Demo/dsPIC_MPLAB/
 FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Source/
 FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Source/portable/
 *.o
