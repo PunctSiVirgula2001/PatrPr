@@ -8,5 +8,5 @@
 #define PWM_SERVO_MAX 2460
 #define PWM_SERVO_MID (PWM_SERVO_MIN+PWM_SERVO_MAX)/2
 void initPwm();
-
+void setDutyCycle(int val);
 #endif

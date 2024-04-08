@@ -22,3 +22,14 @@ void initPwm(){
  PWM1CON2bits.SEVOPS = 0;
  P1TCONbits.PTEN = 1; /* Enable the PWM Module */ 
 }
+
+// valori tipice pt pwm de 50hz(20ms) sunt in PWM_SERVO_MIN si
+// PWM_SERVO_MAX
+void setDutyCycle(int val){
+	if(val > PWM_SERVO_MAX){
+		val = PWM_SERVO_MAX;
+	}else if(val<PWM_SERVO_MIN){
+		val = PWM_SERVO_MIN;
+	}
+	P1DC3 = val;
+}
