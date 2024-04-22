@@ -24,6 +24,7 @@
 #include "libq.h"
 #include "pwm.h"
 #include "ds18s20.h"
+#include "util.h"
 // #include "serial.h"
 #include "defines.h"
 
@@ -58,9 +59,12 @@ static xQueueHandle xUART1_Queue;
 void TaskCerinta2(void *params)
 {
 	float temp = 0;
+	int pwm_servo = PWM_SERVO_MID;
 	for (;;)
 	{
 		temp = ds1820_read();
+        pwm_servo = (int)map_with_clamp(temp,20.0f,30.0f,PWM_SERVO_MIN,PWM_SERVO_MAX);
+		setDutyCycle(pwm_servo);
 		vTaskDelay(250);
 	}
 }
