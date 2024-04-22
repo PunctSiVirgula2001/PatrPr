@@ -215,7 +215,7 @@ signed char *pxNext;
 	( void ) pxPort;
 
 	/* Send each character in the string, one at a time. */
-	pxNext = ( signed char * ) pcString;
+	pxNext = ( char * ) pcString;
 	while( *pxNext )
 	{
 		//xSerialPutChar( pxPort, *pxNext, serNO_BLOCK );
