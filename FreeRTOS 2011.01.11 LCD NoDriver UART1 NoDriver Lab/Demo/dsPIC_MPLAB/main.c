@@ -26,53 +26,20 @@
 #include "ds18s20.h"
 #include "util.h"
 // #include "serial.h"
+#include "defines.h"
 
-#define DEBOUNCE_MS 400U
-/* Demo task priorities. */
-#define mainBLOCK_Q_PRIORITY (tskIDLE_PRIORITY + 2)
-#define mainCHECK_TASK_PRIORITY (tskIDLE_PRIORITY + 3)
-#define mainCOM_TEST_PRIORITY (2)
+/* Menu states enum : automatic/manual*/
+typedef enum states_app
+{
+	automatic = 1,
+	manual = 2,
+	temperatura = 3,
+	none = 4
+}state_app;
+state_app mod_lucru_curent = none;
 
-/* The check task may require a bit more stack as it calls sprintf(). */
-#define mainCHECK_TAKS_STACK_SIZE (configMINIMAL_STACK_SIZE * 2)
+typedef enum { false, true } bool;
 
-/* The execution period of the check task. */
-#define mainCHECK_TASK_PERIOD ((portTickType)3000 / portTICK_RATE_MS)
-
-/* The number of flash co-routines to create. */
-#define mainNUM_FLASH_COROUTINES (5)
-
-/* Baud rate used by the comtest tasks. */
-// #define mainCOM_TEST_BAUD_RATE				( 19200 )
-#define mainCOM_TEST_BAUD_RATE (9600)
-
-// Definire lungime coada UART1
-#define comBUFFER_LEN (10)
-
-/* We should find that each character can be queued for Tx immediately and we
-don't have to block to send. */
-#define comNO_BLOCK ((portTickType)0)
-
-/* The Rx task will block on the Rx queue for a long period. */
-#define comRX_BLOCK_TIME ((portTickType)0xffff)
-
-/* The LED used by the comtest tasks.  mainCOM_TEST_LED + 1 is also used.
-See the comtest.c file for more information. */
-#define mainCOM_TEST_LED (6)
-
-/* The frequency at which the "fast interrupt test" interrupt will occur. */
-#define mainTEST_INTERRUPT_FREQUENCY (20000)
-
-/* The number of processor clocks we expect to occur between each "fast
-interrupt test" interrupt. */
-#define mainEXPECTED_CLOCKS_BETWEEN_INTERRUPTS (configCPU_CLOCK_HZ / mainTEST_INTERRUPT_FREQUENCY)
-
-/* The number of nano seconds between each processor clock. */
-#define mainNS_PER_CLOCK ((unsigned short)((1.0 / (double)configCPU_CLOCK_HZ) * 1000000000.0))
-
-/* Dimension the buffer used to hold the value of the maximum jitter time when
-it is converted to a string. */
-#define mainMAX_STRING_LENGTH (20)
 
 // Select Internal FRC at POR
 _FOSCSEL(FNOSC_FRC);
@@ -176,6 +143,77 @@ void Task_StareApp(void *params)
 		}
 	}
 }
+signed char input_user[1];
+void Task_UartInterfaceMenu(void *params) // interogare mod de lucru, selectare mod de lucru, afisare temperatura
+{
+	
+	bool reset_menu = true;
+	
+	while(1)
+	{
+		// Display work mode menu : automatic/manual only when app is on
+		if (app_on == 1) {
+			xSerialGetChar(mainCOM_TEST_BAUD_RATE, &input_user, 100);
+			if (input_user[0] == 'r') { // CTRL + C or SPACE or ESC -- reset to menu
+				reset_menu = true;
+				mod_lucru_curent = none;
+				vSerialPutString(mainCOM_TEST_BAUD_RATE, "Reset: No mode active.\n\r", 20);
+			}
+		}
+
+		if(reset_menu == true && app_on == 1) // Display menu only once
+		{
+			vSerialPutString(mainCOM_TEST_BAUD_RATE, "Select work mode: automatic(1)/manual(2)\n\r", 35);
+			vTaskDelay(200);
+			reset_menu = false;
+			// Wait for user input
+			bool validInput = false;
+			while (!validInput) {
+				//wait max time for user input
+				xSerialGetChar(mainCOM_TEST_BAUD_RATE,&input_user,5000);
+				if (atoi(input_user) == automatic) {
+					mod_lucru_curent = automatic;
+					validInput = true;
+					vSerialPutString(mainCOM_TEST_BAUD_RATE, "Automatic mode selected.\n\r", 20);
+				} else if (atoi(input_user) == manual) {
+					mod_lucru_curent = manual;
+					validInput = true;
+					vSerialPutString(mainCOM_TEST_BAUD_RATE, "Manual mode selected.\n\r", 20);
+				} else if (atoi(input_user) == temperatura) {
+					mod_lucru_curent = temperatura;
+					validInput = true;
+					vSerialPutString(mainCOM_TEST_BAUD_RATE, "Display temperature:.\n\r", 20);
+				}
+				vTaskDelay(50);
+			}
+		}
+		vTaskDelay(50);
+	}
+}
+// Task selectare mod de lucru
+
+void Task_WorkMode(void *params)
+{
+	while (1)
+	{
+		// if (app_on == 1)
+		// {
+		// 	switch (mod_lucru_curent):
+		// 	case automatic:
+		// 		// do something
+		// 		break;
+		// 	case manual:
+		// 		// do something
+		// 		break;
+		// 	case temperatura:
+		// 		// do something
+		// 		break;
+		// }
+		vTaskDelay(100);
+	}
+}
+
+
 int main(void)
 {
 	prvSetupHardware();
@@ -184,6 +222,8 @@ int main(void)
 	init_PORTB_AND_INT();
 	xTaskCreate(TaskCerinta2, (signed portCHAR *)"TsC2", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL);
 	xTaskCreate(Task_StareApp, (signed portCHAR *)"T_app", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, &task_app);
+	xTaskCreate(Task_UartInterfaceMenu, (signed portCHAR *)"T_UIM", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL);
+	xTaskCreate(Task_WorkMode, (signed portCHAR *)"T_WM", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL);
 	/* Finally start the scheduler. */
 	vTaskStartScheduler();
 
