@@ -34,13 +34,12 @@ typedef enum states_app
 	automatic = 1,
 	manual = 2,
 	temperatura = 3,
-	none = 4
+	none = 4,
+	on = 5,
+	off = 6
 }state_app;
 state_app mod_lucru_curent = none;
-
 typedef enum { false, true } bool;
-
-
 // Select Internal FRC at POR
 _FOSCSEL(FNOSC_FRC);
 // Enable Clock Switching and Configure
@@ -126,29 +125,30 @@ void Task_StareApp(void *params)
 		}
 		if (last_state_app != app_on)
 		{
-			clear();
+			//clear();
 			vTaskDelay(50);
+			//send to LCD queue the state of the app
 			if (app_on == 1)
 			{
-
-				LCD_line(1);
-				LCD_printf("APP_ON");
+				mod_lucru_curent = on;
+				xQueueSend(LCD_update_queue, &mod_lucru_curent, portMAX_DELAY);	
+				// LCD_line(1);
+				// LCD_printf("APP_ON");
 			}
 			if (app_on == 0)
 			{
-
-				LCD_line(1);
-				LCD_printf("APP_OFF");
+				mod_lucru_curent = off;
+				xQueueSend(LCD_update_queue, &mod_lucru_curent, portMAX_DELAY);	
+				// LCD_line(1);
+				// LCD_printf("APP_OFF");
 			}
 		}
 	}
 }
 signed char input_user[1];
 void Task_UartInterfaceMenu(void *params) // interogare mod de lucru, selectare mod de lucru, afisare temperatura
-{
-	
+{	
 	bool reset_menu = true;
-	
 	while(1)
 	{
 		// Display work mode menu : automatic/manual only when app is on
@@ -156,7 +156,8 @@ void Task_UartInterfaceMenu(void *params) // interogare mod de lucru, selectare 
 			xSerialGetChar(mainCOM_TEST_BAUD_RATE, &input_user, 100);
 			if (input_user[0] == 'r') { // CTRL + C or SPACE or ESC -- reset to menu
 				reset_menu = true;
-				mod_lucru_curent = none;
+				mod_lucru_curent = off;
+				app_on = 0;
 				vSerialPutString(mainCOM_TEST_BAUD_RATE, "Reset: No mode active.\n\r", 20);
 			}
 		}
@@ -174,14 +175,17 @@ void Task_UartInterfaceMenu(void *params) // interogare mod de lucru, selectare 
 				if (atoi(input_user) == automatic) {
 					mod_lucru_curent = automatic;
 					validInput = true;
+					xQueueSend(LCD_update_queue, &mod_lucru_curent, portMAX_DELAY);
 					vSerialPutString(mainCOM_TEST_BAUD_RATE, "Automatic mode selected.\n\r", 20);
 				} else if (atoi(input_user) == manual) {
 					mod_lucru_curent = manual;
 					validInput = true;
+					xQueueSend(LCD_update_queue, &mod_lucru_curent, portMAX_DELAY);
 					vSerialPutString(mainCOM_TEST_BAUD_RATE, "Manual mode selected.\n\r", 20);
 				} else if (atoi(input_user) == temperatura) {
 					mod_lucru_curent = temperatura;
 					validInput = true;
+					xQueueSend(LCD_update_queue, &mod_lucru_curent, portMAX_DELAY);
 					vSerialPutString(mainCOM_TEST_BAUD_RATE, "Display temperature:.\n\r", 20);
 				}
 				vTaskDelay(50);
@@ -190,8 +194,89 @@ void Task_UartInterfaceMenu(void *params) // interogare mod de lucru, selectare 
 		vTaskDelay(50);
 	}
 }
-// Task selectare mod de lucru
+// Task update LCD with current work mode (automatic/manual/temperatura), Voltage from RB3 and last received command from UART
 
+void Task_updateLCD(void *params)
+{
+	state_app received_state = off;
+	//wait for the Queue to be created
+	while (LCD_update_queue == 0)
+	{
+		vTaskDelay(100);
+	}
+
+	while (1)
+	{
+		//wait for the Queue to be filled
+		if (xQueueReceive(LCD_update_queue, &received_state, 50) == pdTRUE)
+		{
+			clear();
+			char received_state_line_1[40]= "Mod=_      Ultima Comanda=_            ";
+			char received_state_line_2[40] = "Temperatura=_    V_RB3=_               ";
+			switch (received_state)
+			{ // in each case we will update the strings to be displayed on the LCD
+			case on:
+				//change Mod=_ to Mod=on
+				received_state_line_1[4] = 'o';
+				received_state_line_1[5] = 'n';
+				//update display
+				LCD_line(1);
+				LCD_printf(received_state_line_1);
+				//change Ultima Comanda=_ to Ultima Comanda=on
+				received_state_line_1[18] = 'o';
+				received_state_line_1[19] = 'n';
+
+				// LCD_line(1);
+				// LCD_printf("APP_ON");
+				break;
+			case off:
+				//change Mod=_ to Mod=off
+				received_state_line_1[4] = 'o';
+				received_state_line_1[5] = 'f';
+				received_state_line_1[6] = 'f';
+				//update display
+				LCD_line(1);
+				LCD_printf(received_state_line_1);
+				//change Ultima Comanda=_ to Ultima Comanda=off
+				received_state_line_1[18] = 'o';
+				received_state_line_1[19] = 'f';
+				received_state_line_1[20] = 'f';
+				// LCD_line(1);
+				// LCD_printf("APP_OFF");
+				break;
+			case automatic:
+				//change Mod=_ to Mod=automatic
+				received_state_line_1[4] = 'a';
+				received_state_line_1[5] = 'u';
+				received_state_line_1[6] = 't';
+				received_state_line_1[7] = 'o';
+
+				//update display
+				LCD_line(1);
+				LCD_printf(received_state_line_1);
+
+				//change Ultima Comanda=_ to Ultima Comanda=automatic
+				received_state_line_1[18] = 'a';
+				received_state_line_1[19] = 'u';
+				received_state_line_1[20] = 't';
+				received_state_line_1[21] = 'o';
+				
+				// LCD_line(2);
+				// LCD_printf("Automatic");
+				// up
+				break;
+			case manual:
+				LCD_line(2);
+				LCD_printf("Manual");
+				break;
+			case temperatura:
+				LCD_line(2);
+				LCD_printf("Temperatura");
+				break;
+			}
+		}
+	}
+}
 void Task_WorkMode(void *params)
 {
 	while (1)
@@ -217,6 +302,9 @@ void Task_WorkMode(void *params)
 int main(void)
 {
 	prvSetupHardware();
+	// queue for updating LCD
+	xQueueHandle LCD_update_queue = xQueueCreate(10,sizeof(state_app));
+
 	initPwm();
 	init_ds1820();
 	init_PORTB_AND_INT();
@@ -224,6 +312,8 @@ int main(void)
 	xTaskCreate(Task_StareApp, (signed portCHAR *)"T_app", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, &task_app);
 	xTaskCreate(Task_UartInterfaceMenu, (signed portCHAR *)"T_UIM", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL);
 	xTaskCreate(Task_WorkMode, (signed portCHAR *)"T_WM", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL);
+	xTaskCreate(Task_updateLCD, (signed portCHAR *)"T_ULCD", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL);
+	
 	/* Finally start the scheduler. */
 	vTaskStartScheduler();
 
