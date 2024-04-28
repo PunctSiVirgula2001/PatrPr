@@ -26,8 +26,13 @@
 #include "ds18s20.h"
 #include "util.h"
 #include "adcDrv1.h"
-// #include "serial.h"
 #include "defines.h"
+
+_FOSCSEL(FNOSC_FRC);
+_FOSC(FCKSM_CSECMD &OSCIOFNC_OFF); 
+_FWDT(FWDTEN_OFF);
+static void prvSetupHardware(void);
+
 
 /* Menu states enum : automatic/manual*/
 typedef enum states_app
@@ -41,47 +46,40 @@ typedef enum states_app
 } state_app;
 state_app mod_lucru_curent = none;
 
-typedef enum
-{
-	false,
-	true
-} bool;
-// Select Internal FRC at POR
-_FOSCSEL(FNOSC_FRC);
-// Enable Clock Switching and Configure
-_FOSC(FCKSM_CSECMD &OSCIOFNC_OFF); // FRC + PLL
-//_FOSC(FCKSM_CSECMD & OSCIOFNC_OFF & POSCMD_XT);		// XT + PLL
-_FWDT(FWDTEN_OFF); // Watchdog Timer Enabled/disabled by user software
-/*
- * Setup the processor ready for the demo.
- */
-static void prvSetupHardware(void);
+typedef enum {false,true} bool;
+
 /* The queue used to send messages to the LCD task. */
-static xQueueHandle xUART1_Queue;
+xQueueHandle xUART1_Queue;
+
 /* The queue used to notify when the LCD should be changed. */
 xQueueHandle LCD_update_queue;
+
+
 float temp = 25.0f;
 int voltage = 0;
-int mod_lucru = 0;//manual
+int mod_lucru = 0; //manual
 int pwm_servo = PWM_SERVO_MIN;
 void TaskPwmTemp(void *params)
 {
-	
+
 	for (;;)
 	{
-        if(mod_lucru==1){
+		if (mod_lucru == 1)
+		{
 			temp = ds1820_read();
-	        pwm_servo = (int)map_with_clamp(temp,20.0f,30.0f,PWM_SERVO_MIN,PWM_SERVO_MAX);
-			
-		}else{
+			pwm_servo = (int)map_with_clamp(temp, 20.0f, 30.0f, PWM_SERVO_MIN, PWM_SERVO_MAX);
+		}
+		else
+		{
 			voltage = getADCVal();
-	        pwm_servo = (int)map_with_clamp(voltage,0,4095,PWM_SERVO_MIN,PWM_SERVO_MAX);
+			pwm_servo = (int)map_with_clamp(voltage, 0, 4095, PWM_SERVO_MIN, PWM_SERVO_MAX);
 		}
 		setDutyCycle(pwm_servo);
 		vTaskDelay(250);
 	}
 }
-xTaskHandle task_idle, task_app;
+
+// Interrupt for button press on SW1
 volatile unsigned char app_on = 0U;
 volatile portTickType last_time = 0U;
 volatile portTickType current_time = 0U;
@@ -242,12 +240,14 @@ const char *getTemperatureString() // return string for temperature
 	snprintf(temp_str, 5, "%.2f", temp);
 	return temp_str;
 }
+
 const char *getRB3StatusString() // return string for RB3 status
 {
 	static char rb3_str[5];
-	snprintf(rb3_str, 5, "%d", _RB3);
+	snprintf(rb3_str, 5, "%d", getADCVal());
 	return rb3_str;
 }
+
 // Line 1: Mod=state Ultima Comanda= any command
 // Line 2: Temperatura=state V_RB3=state
 void constructAndUpdateLine(state_app state, char *line1, char *line2)
@@ -357,11 +357,11 @@ int main(void)
 	LCD_update_queue = xQueueCreate(10, sizeof(state_app));
 	initPwm();
 	init_ds1820();
-	//init_PORTB_AND_INT();
+	init_PORTB_AND_INT();
 	initAdc1();
 	initTmr3();
 	xTaskCreate(TaskPwmTemp, (signed portCHAR *)"TsC2", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL);
-	//xTaskCreate(Task_StareApp, (signed portCHAR *)"T_app", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, &task_app);
+	xTaskCreate(Task_StareApp, (signed portCHAR *)"T_app", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, NULL);
 	xTaskCreate(Task_UartInterfaceMenu, (signed portCHAR *)"T_UIM", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL);
 	xTaskCreate(Task_WorkMode, (signed portCHAR *)"T_WM", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL);
 	xTaskCreate(Task_updateLCD, (signed portCHAR *)"T_ULCD", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL);
