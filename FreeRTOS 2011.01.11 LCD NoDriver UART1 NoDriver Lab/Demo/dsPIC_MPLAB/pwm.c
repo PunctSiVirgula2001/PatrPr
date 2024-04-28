@@ -9,7 +9,7 @@ void initPwm(){
  P1TMRbits.PTDIR = 0; // Numara in sus pana cand timerul = perioada 
  P1TMRbits.PTMR = 0; // Baza de timp 
 
- P1DC3 = PWM_SERVO_MAX;
+ P1DC3 = PWM_SERVO_MIN;
  
  P1TPER = 12300; //50 hz
 
@@ -18,7 +18,7 @@ void initPwm(){
  PWM1CON1bits.PEN3H = 1; // Pinul PWM1H setat pe iesire PWM 
  PWM1CON1bits.PEN3L = 0; // Pinul PWM1L setat ca gpio
 
- PWM1CON2bits.UDIS = 1; // Disable Updates from duty cycle and period buffers 
+ //PWM1CON2bits.UDIS = 1; // Disable Updates from duty cycle and period buffers 
  PWM1CON2bits.SEVOPS = 0;
  P1TCONbits.PTEN = 1; /* Enable the PWM Module */ 
 }
