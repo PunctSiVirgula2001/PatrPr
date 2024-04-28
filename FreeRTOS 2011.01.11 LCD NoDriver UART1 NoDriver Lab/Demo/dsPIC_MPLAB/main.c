@@ -25,6 +25,7 @@
 #include "pwm.h"
 #include "ds18s20.h"
 #include "util.h"
+#include "adcDrv1.h"
 // #include "serial.h"
 #include "defines.h"
 
@@ -59,15 +60,23 @@ static void prvSetupHardware(void);
 static xQueueHandle xUART1_Queue;
 /* The queue used to notify when the LCD should be changed. */
 xQueueHandle LCD_update_queue;
-
-void TaskCerinta2(void *params)
+float temp = 25.0f;
+int voltage = 0;
+int mod_lucru = 0;//manual
+int pwm_servo = PWM_SERVO_MIN;
+void TaskPwmTemp(void *params)
 {
-	float temp = 0;
-	int pwm_servo = PWM_SERVO_MID;
+	
 	for (;;)
 	{
-		temp = ds1820_read();
-		pwm_servo = (int)map_with_clamp(temp, 20.0f, 30.0f, PWM_SERVO_MIN, PWM_SERVO_MAX);
+        if(mod_lucru==1){
+			temp = ds1820_read();
+	        pwm_servo = (int)map_with_clamp(temp,20.0f,30.0f,PWM_SERVO_MIN,PWM_SERVO_MAX);
+			
+		}else{
+			voltage = getADCVal();
+	        pwm_servo = (int)map_with_clamp(voltage,0,4095,PWM_SERVO_MIN,PWM_SERVO_MAX);
+		}
 		setDutyCycle(pwm_servo);
 		vTaskDelay(250);
 	}
@@ -348,9 +357,11 @@ int main(void)
 	LCD_update_queue = xQueueCreate(10, sizeof(state_app));
 	initPwm();
 	init_ds1820();
-	init_PORTB_AND_INT();
-	xTaskCreate(TaskCerinta2, (signed portCHAR *)"TsC2", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL);
-	xTaskCreate(Task_StareApp, (signed portCHAR *)"T_app", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, &task_app);
+	//init_PORTB_AND_INT();
+	initAdc1();
+	initTmr3();
+	xTaskCreate(TaskPwmTemp, (signed portCHAR *)"TsC2", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL);
+	//xTaskCreate(Task_StareApp, (signed portCHAR *)"T_app", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, &task_app);
 	xTaskCreate(Task_UartInterfaceMenu, (signed portCHAR *)"T_UIM", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL);
 	xTaskCreate(Task_WorkMode, (signed portCHAR *)"T_WM", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL);
 	xTaskCreate(Task_updateLCD, (signed portCHAR *)"T_ULCD", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL);
