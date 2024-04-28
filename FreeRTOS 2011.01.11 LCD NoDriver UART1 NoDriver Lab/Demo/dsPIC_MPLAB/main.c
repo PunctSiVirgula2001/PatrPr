@@ -1,4 +1,4 @@
-
+   
 /* Standard includes. */
 #include <stdio.h>
 
@@ -25,8 +25,15 @@
 #include "pwm.h"
 #include "ds18s20.h"
 #include "util.h"
-// #include "serial.h"
+#include "adcDrv1.h"
 #include "defines.h"
+
+_FOSCSEL(FNOSC_FRC);
+_FOSC(FCKSM_CSECMD &OSCIOFNC_OFF); 
+_FWDT(FWDTEN_OFF);
+static void prvSetupHardware(void);
+
+
 
 /* Menu states enum : automatic/manual*/
 typedef enum states_app
@@ -34,43 +41,65 @@ typedef enum states_app
 	automatic = 1,
 	manual = 2,
 	temperatura = 3,
-	none = 4,
-	on = 5,
-	off = 6
-}state_app;
-state_app mod_lucru_curent = none;
-typedef enum { false, true } bool;
-// Select Internal FRC at POR
-_FOSCSEL(FNOSC_FRC);
-// Enable Clock Switching and Configure
-_FOSC(FCKSM_CSECMD &OSCIOFNC_OFF); // FRC + PLL
-//_FOSC(FCKSM_CSECMD & OSCIOFNC_OFF & POSCMD_XT);		// XT + PLL
-_FWDT(FWDTEN_OFF); // Watchdog Timer Enabled/disabled by user software
+	interogare_mod = 4,
+	none = 5,
+	on = 6,
+	off = 7
+} state_app;
 
-/*
- * Setup the processor ready for the demo.
- */
-static void prvSetupHardware(void);
+// Default state is none
+state_app mod_lucru_curent = none;
+
+typedef enum {false,true} bool;
+
+void updateLCDLine(int line, const char *text);
+const char *getStateString(state_app state);
+const char *getTemperatureString();
+const char *getRB3StatusString();
+void constructAndUpdateLine(state_app state, char *line1, char *line2);
+
 
 /* The queue used to send messages to the LCD task. */
-static xQueueHandle xUART1_Queue;
+xQueueHandle xUART1_Queue;
 
-void TaskCerinta2(void *params)
+/* The queue used to notify when the LCD should be changed. */
+xQueueHandle LCD_update_queue;
+
+
+float temp = 25.0f;
+int voltage = 0;
+int pwm_servo = PWM_SERVO_MIN;
+void TaskPwmTemp(void *params)
 {
-	float temp = 0;
-	int pwm_servo = PWM_SERVO_MID;
+
 	for (;;)
 	{
-		temp = ds1820_read();
-        pwm_servo = (int)map_with_clamp(temp,20.0f,30.0f,PWM_SERVO_MIN,PWM_SERVO_MAX);
+		if (mod_lucru_curent == automatic)
+		{
+			temp = ds1820_read();
+			pwm_servo = (int)map_with_clamp(temp, 20.0f, 30.0f, PWM_SERVO_MIN, PWM_SERVO_MAX);
+			// print to serial the temperature
+			vSerialPutString(mainCOM_TEST_BAUD_RATE, "Temperature: ", 20);
+			vSerialPutString(mainCOM_TEST_BAUD_RATE, getTemperatureString(), 20);
+		}
+		else if (mod_lucru_curent == manual)
+		{
+			voltage = getADCVal();
+			pwm_servo = (int)map_with_clamp(voltage, 0, 4095, PWM_SERVO_MIN, PWM_SERVO_MAX);
+			// print to serial the voltage
+			vSerialPutString(mainCOM_TEST_BAUD_RATE, "Voltage potentiometer: ", 20);
+			vSerialPutString(mainCOM_TEST_BAUD_RATE, getRB3StatusString(), 20);
+		}
 		setDutyCycle(pwm_servo);
 		vTaskDelay(250);
 	}
 }
-xTaskHandle task_idle, task_app;
+
+// Interrupt for button press on SW1
 volatile unsigned char app_on = 0U;
 volatile portTickType last_time = 0U;
 volatile portTickType current_time = 0U;
+unsigned char last_state_app = -1;
 void __attribute__((interrupt, no_auto_psv)) _INT0Interrupt(void)
 {
 	current_time = xTaskGetTickCount();
@@ -82,6 +111,7 @@ void __attribute__((interrupt, no_auto_psv)) _INT0Interrupt(void)
 	_INT0IF = 0; // Resetam flagul corespunzator intreruperii
 				 // INT0 pentru a nu se reapela rutina de intrerupere
 }
+
 void init_PORTB_AND_INT()
 {
 	TRISB = 0x0000;
@@ -100,8 +130,7 @@ void init_PORTB_AND_INT()
 	_INT0IE = 1; // Se permite lucrul cu întreruperea INT0
 	_INT0EP = 1; // Se stabileşte pe ce front se generează INT0
 }
-unsigned char stare_rb15 = 0;
-unsigned char last_state_app = -1;
+
 void Task_StareApp(void *params)
 {
 	LCD_init();
@@ -114,47 +143,42 @@ void Task_StareApp(void *params)
 		{
 			last_state_app = app_on;
 			_RB15 ^= 1U; // aici trb rb0
-			stare_rb15 = _RB15;
 			vTaskDelay(1000);
 		}
 		else if (app_on == 1)
 		{
 			last_state_app = app_on;
 			_RB15 = 0U;
-			stare_rb15 = _RB15;
 		}
 		if (last_state_app != app_on)
 		{
-			//clear();
 			vTaskDelay(50);
-			//send to LCD queue the state of the app
+			// send to LCD queue the state of the app
 			if (app_on == 1)
 			{
 				mod_lucru_curent = on;
-				xQueueSend(LCD_update_queue, &mod_lucru_curent, portMAX_DELAY);	
-				// LCD_line(1);
-				// LCD_printf("APP_ON");
+				xQueueSend(LCD_update_queue, &mod_lucru_curent, portMAX_DELAY);
 			}
 			if (app_on == 0)
 			{
 				mod_lucru_curent = off;
-				xQueueSend(LCD_update_queue, &mod_lucru_curent, portMAX_DELAY);	
-				// LCD_line(1);
-				// LCD_printf("APP_OFF");
+				xQueueSend(LCD_update_queue, &mod_lucru_curent, portMAX_DELAY);
 			}
 		}
 	}
 }
 signed char input_user[1];
 void Task_UartInterfaceMenu(void *params) // interogare mod de lucru, selectare mod de lucru, afisare temperatura
-{	
+{
 	bool reset_menu = true;
-	while(1)
+	while (1)
 	{
 		// Display work mode menu : automatic/manual only when app is on
-		if (app_on == 1) {
+		if (app_on == 1)
+		{
 			xSerialGetChar(mainCOM_TEST_BAUD_RATE, &input_user, 100);
-			if (input_user[0] == 'r') { // CTRL + C or SPACE or ESC -- reset to menu
+			if (input_user[0] == 'r')
+			{ // when user inputs 'r' reset menu
 				reset_menu = true;
 				mod_lucru_curent = off;
 				app_on = 0;
@@ -162,44 +186,76 @@ void Task_UartInterfaceMenu(void *params) // interogare mod de lucru, selectare 
 			}
 		}
 
-		if(reset_menu == true && app_on == 1) // Display menu only once
+		if (reset_menu == true && app_on == 1) // Display menu only once after reset
 		{
-			vSerialPutString(mainCOM_TEST_BAUD_RATE, "Select work mode: automatic(1)/manual(2)\n\r", 35);
+			vSerialPutString(mainCOM_TEST_BAUD_RATE, "====Select work mode:====\n\r", 35);
+			vSerialPutString(mainCOM_TEST_BAUD_RATE, "Automatic = '1'\n\r", 20);
+			vSerialPutString(mainCOM_TEST_BAUD_RATE, "Manual = '2'\n\r", 20);
+			vSerialPutString(mainCOM_TEST_BAUD_RATE, "Display temperature = '3'\n\r", 30);
+			vSerialPutString(mainCOM_TEST_BAUD_RATE, "Interogare mod = '4'\n\r", 30);
+			// put a end line
+			vSerialPutString(mainCOM_TEST_BAUD_RATE, "\n\r", 20);
 			vTaskDelay(200);
 			reset_menu = false;
 			// Wait for user input
 			bool validInput = false;
-			while (!validInput) {
-				//wait max time for user input
-				xSerialGetChar(mainCOM_TEST_BAUD_RATE,&input_user,5000);
-				if (atoi(input_user) == automatic) {
+			while (!validInput || mod_lucru_curent == temperatura) // wait for valid input  // if temperature is selected, display it
+			{
+				// wait max time for user input
+				xSerialGetChar(mainCOM_TEST_BAUD_RATE, &input_user, 5000);
+				if (atoi(input_user) == automatic)
+				{
 					mod_lucru_curent = automatic;
 					validInput = true;
-					xQueueSend(LCD_update_queue, &mod_lucru_curent, portMAX_DELAY);
+					xQueueSend(LCD_update_queue, &mod_lucru_curent, portMAX_DELAY); // send to LCD queue the selected work mode
 					vSerialPutString(mainCOM_TEST_BAUD_RATE, "Automatic mode selected.\n\r", 20);
-				} else if (atoi(input_user) == manual) {
+				}
+				else if (atoi(input_user) == manual)
+				{
 					mod_lucru_curent = manual;
 					validInput = true;
-					xQueueSend(LCD_update_queue, &mod_lucru_curent, portMAX_DELAY);
+					xQueueSend(LCD_update_queue, &mod_lucru_curent, portMAX_DELAY); // send to LCD queue the selected work mode
 					vSerialPutString(mainCOM_TEST_BAUD_RATE, "Manual mode selected.\n\r", 20);
-				} else if (atoi(input_user) == temperatura) {
+				}
+				else if (atoi(input_user) == temperatura)
+				{
 					mod_lucru_curent = temperatura;
 					validInput = true;
-					xQueueSend(LCD_update_queue, &mod_lucru_curent, portMAX_DELAY);
+					xQueueSend(LCD_update_queue, &mod_lucru_curent, portMAX_DELAY); // send to LCD queue the selected work mode
 					vSerialPutString(mainCOM_TEST_BAUD_RATE, "Display temperature:.\n\r", 20);
 				}
+				else if(atoi(input_user) == interogare_mod)
+				{
+					// dont save the state in mod_lucru_curent
+					vSerialPutString(mainCOM_TEST_BAUD_RATE, "Current work mode: ", 20);
+					vSerialPutString(mainCOM_TEST_BAUD_RATE, getStateString(mod_lucru_curent), 20);
+					vSerialPutString(mainCOM_TEST_BAUD_RATE, "\n\r", 20);
+				}
+				if(mod_lucru_curent == temperatura)
+				{
+					vSerialPutString(mainCOM_TEST_BAUD_RATE, "Temperature: ", 20);
+					vSerialPutString(mainCOM_TEST_BAUD_RATE, getTemperatureString(), 20);
+					vSerialPutString(mainCOM_TEST_BAUD_RATE, " C\n\r", 20);
+				}
+
 				vTaskDelay(50);
 			}
 		}
 		vTaskDelay(50);
 	}
 }
-// Task update LCD with current work mode (automatic/manual/temperatura), Voltage from RB3 and last received command from UART
 
+// Task update LCD with current work mode (automatic/manual/temperatura), Voltage from RB3 and last received command from UART
 void Task_updateLCD(void *params)
 {
-	state_app received_state = off;
-	//wait for the Queue to be created
+	// Default state
+	state_app received_state = none; 
+
+	// Constructed lines
+	char line1[40] = {0};
+	char line2[40] = {0};
+
+	// Wait for the Queue to be created
 	while (LCD_update_queue == 0)
 	{
 		vTaskDelay(100);
@@ -207,113 +263,36 @@ void Task_updateLCD(void *params)
 
 	while (1)
 	{
-		//wait for the Queue to be filled
-		if (xQueueReceive(LCD_update_queue, &received_state, 50) == pdTRUE)
+		// Receive a state and update accordingly
+		if (xQueueReceive(LCD_update_queue, &received_state, 250) == pdTRUE)
 		{
-			clear();
-			char received_state_line_1[40]= "Mod=_      Ultima Comanda=_            ";
-			char received_state_line_2[40] = "Temperatura=_    V_RB3=_               ";
-			switch (received_state)
-			{ // in each case we will update the strings to be displayed on the LCD
-			case on:
-				//change Mod=_ to Mod=on
-				received_state_line_1[4] = 'o';
-				received_state_line_1[5] = 'n';
-				//update display
-				LCD_line(1);
-				LCD_printf(received_state_line_1);
-				//change Ultima Comanda=_ to Ultima Comanda=on
-				received_state_line_1[18] = 'o';
-				received_state_line_1[19] = 'n';
-
-				// LCD_line(1);
-				// LCD_printf("APP_ON");
-				break;
-			case off:
-				//change Mod=_ to Mod=off
-				received_state_line_1[4] = 'o';
-				received_state_line_1[5] = 'f';
-				received_state_line_1[6] = 'f';
-				//update display
-				LCD_line(1);
-				LCD_printf(received_state_line_1);
-				//change Ultima Comanda=_ to Ultima Comanda=off
-				received_state_line_1[18] = 'o';
-				received_state_line_1[19] = 'f';
-				received_state_line_1[20] = 'f';
-				// LCD_line(1);
-				// LCD_printf("APP_OFF");
-				break;
-			case automatic:
-				//change Mod=_ to Mod=automatic
-				received_state_line_1[4] = 'a';
-				received_state_line_1[5] = 'u';
-				received_state_line_1[6] = 't';
-				received_state_line_1[7] = 'o';
-
-				//update display
-				LCD_line(1);
-				LCD_printf(received_state_line_1);
-
-				//change Ultima Comanda=_ to Ultima Comanda=automatic
-				received_state_line_1[18] = 'a';
-				received_state_line_1[19] = 'u';
-				received_state_line_1[20] = 't';
-				received_state_line_1[21] = 'o';
-				
-				// LCD_line(2);
-				// LCD_printf("Automatic");
-				// up
-				break;
-			case manual:
-				LCD_line(2);
-				LCD_printf("Manual");
-				break;
-			case temperatura:
-				LCD_line(2);
-				LCD_printf("Temperatura");
-				break;
-			}
+			// Construct and update lines based on the received state
+			constructAndUpdateLine(received_state, line1, line2);
+		}
+		else
+		{ 	// when no state is received, update with the last received state and the read values
+			// Construct and update lines based on the last received state
+			constructAndUpdateLine(none, line1, line2);
 		}
 	}
 }
-void Task_WorkMode(void *params)
-{
-	while (1)
-	{
-		// if (app_on == 1)
-		// {
-		// 	switch (mod_lucru_curent):
-		// 	case automatic:
-		// 		// do something
-		// 		break;
-		// 	case manual:
-		// 		// do something
-		// 		break;
-		// 	case temperatura:
-		// 		// do something
-		// 		break;
-		// }
-		vTaskDelay(100);
-	}
-}
-
 
 int main(void)
 {
 	prvSetupHardware();
-	// queue for updating LCD
-	xQueueHandle LCD_update_queue = xQueueCreate(10,sizeof(state_app));
 
-	initPwm();
-	init_ds1820();
-	init_PORTB_AND_INT();
-	xTaskCreate(TaskCerinta2, (signed portCHAR *)"TsC2", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL);
-	xTaskCreate(Task_StareApp, (signed portCHAR *)"T_app", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, &task_app);
+	// queue for updating LCD
+	LCD_update_queue = xQueueCreate(10, sizeof(state_app));
+	initPwm(); // init PWM
+	init_ds1820(); // init DS1820
+	init_PORTB_AND_INT(); // init PORTB and INT0
+	initAdc1(); // init ADC1
+	initTmr3(); // init TMR3
+	xTaskCreate(TaskPwmTemp, (signed portCHAR *)"TsC2", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL);
+	xTaskCreate(Task_StareApp, (signed portCHAR *)"T_app", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, NULL);
 	xTaskCreate(Task_UartInterfaceMenu, (signed portCHAR *)"T_UIM", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL);
-	xTaskCreate(Task_WorkMode, (signed portCHAR *)"T_WM", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL);
 	xTaskCreate(Task_updateLCD, (signed portCHAR *)"T_ULCD", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL);
-	
+
 	/* Finally start the scheduler. */
 	vTaskStartScheduler();
 
@@ -363,6 +342,92 @@ static void prvSetupHardware(void)
 	xSerialPortInitMinimal(mainCOM_TEST_BAUD_RATE, comBUFFER_LEN);
 }
 /*-----------------------------------------------------------*/
+
+void updateLCDLine(int line, const char *text) // update line with text
+{
+	LCD_line(line);
+	LCD_printf(text);
+}
+const char *getStateString(state_app state) // return string for state
+{
+	switch (state)
+	{
+	case on:
+		return "On";
+	case off:
+		return "Off";
+	case automatic:
+		return "Auto";
+	case manual:
+		return "Manual";
+	case temperatura:
+		return "Temp";
+	case interogare_mod:
+		return "Interogare";
+	}
+}
+
+const char *getTemperatureString() // return string for temperature
+{
+	float temp = ds1820_read();
+	static char temp_str[5];
+	snprintf(temp_str, 5, "%.2f", temp);
+	return temp_str;
+}
+
+const char *getRB3StatusString() // return string for RB3 status
+{
+	static char rb3_str[5];
+	snprintf(rb3_str, 5, "%d", getADCVal());
+	return rb3_str;
+}
+
+// Line 1: Mod=state Ultima Comanda= any command
+// Line 2: Temperatura=state V_RB3=state
+void constructAndUpdateLine(state_app state, char *line1, char *line2)
+{
+	clear();
+	vTaskDelay(50);
+	static char *last_command = "N/A";	  // Stores the previous command for display
+	static char *current_command = "N/A"; // Stores the current command during this cycle
+
+	// Determine the current command based on state
+	if(state != none)
+	{
+		switch (state)
+		{
+		case automatic:
+			current_command = "Automatic";
+			break;
+		case manual:
+			current_command = "Manual";
+			break;
+		case temperatura:
+			current_command = "Temperature";
+			break;
+		case on:
+			current_command = "On";
+			break;
+		case off:
+			current_command = "Off";
+			break;
+		}
+	}
+	// Build the display strings
+	snprintf(line1, 40, "Mod=%s Ultima Comanda=%s", current_command, last_command);
+	// Get the temperature string
+	snprintf(line2, 40, "Temperatura=%s V_RB3=%s", getTemperatureString(), getRB3StatusString());
+
+	// Update the LCD
+	updateLCDLine(1, line1);
+	updateLCDLine(2, line2);
+
+	// Now update last_command to the current command for use in the next cycle
+	if(state != none)
+		last_command = current_command;
+}
+
+
 
 /*-----------------------------------------------------------*/
 

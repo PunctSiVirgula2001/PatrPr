@@ -7,3 +7,5 @@ FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Source/portable/
 *.o
 *.json
 *.o
+FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Demo/dsPIC_MPLAB/RTOSDemo_dsPIC.cof
+FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab/Demo/dsPIC_MPLAB/RTOSDemo_dsPIC.hex
