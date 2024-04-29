@@ -48,7 +48,7 @@ typedef enum states_app
 } state_app;
 
 // Default state is none
-state_app mod_lucru_curent = none;
+state_app mod_lucru_curent = automatic;
 
 typedef enum {false,true} bool;
 
@@ -79,16 +79,16 @@ void TaskPwmTemp(void *params)
 			temp = ds1820_read();
 			pwm_servo = (int)map_with_clamp(temp, 20.0f, 30.0f, PWM_SERVO_MIN, PWM_SERVO_MAX);
 			// print to serial the temperature
-			vSerialPutString(mainCOM_TEST_BAUD_RATE, "Temperature: ", 20);
-			vSerialPutString(mainCOM_TEST_BAUD_RATE, getTemperatureString(), 20);
+			//vSerialPutString(mainCOM_TEST_BAUD_RATE, "Temperature: ", 20);
+			//vSerialPutString(mainCOM_TEST_BAUD_RATE, getTemperatureString(), 20);
 		}
 		else if (mod_lucru_curent == manual)
 		{
 			voltage = getADCVal();
 			pwm_servo = (int)map_with_clamp(voltage, 0, 4095, PWM_SERVO_MIN, PWM_SERVO_MAX);
 			// print to serial the voltage
-			vSerialPutString(mainCOM_TEST_BAUD_RATE, "Voltage potentiometer: ", 20);
-			vSerialPutString(mainCOM_TEST_BAUD_RATE, getRB3StatusString(), 20);
+			//vSerialPutString(mainCOM_TEST_BAUD_RATE, "Voltage potentiometer: ", 20);
+			//vSerialPutString(mainCOM_TEST_BAUD_RATE, getRB3StatusString(), 20);
 		}
 		setDutyCycle(pwm_servo);
 		vTaskDelay(250);
@@ -279,19 +279,19 @@ void Task_updateLCD(void *params)
 
 int main(void)
 {
+	RCONbits.SWDTEN=0;
 	prvSetupHardware();
-
+	//init_PORTB_AND_INT(); // init PORTB and INT0
 	// queue for updating LCD
-	LCD_update_queue = xQueueCreate(10, sizeof(state_app));
+	//LCD_update_queue = xQueueCreate(10, sizeof(state_app));
 	initPwm(); // init PWM
 	init_ds1820(); // init DS1820
-	init_PORTB_AND_INT(); // init PORTB and INT0
 	initAdc1(); // init ADC1
 	initTmr3(); // init TMR3
 	xTaskCreate(TaskPwmTemp, (signed portCHAR *)"TsC2", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL);
-	xTaskCreate(Task_StareApp, (signed portCHAR *)"T_app", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, NULL);
-	xTaskCreate(Task_UartInterfaceMenu, (signed portCHAR *)"T_UIM", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL);
-	xTaskCreate(Task_updateLCD, (signed portCHAR *)"T_ULCD", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL);
+	//xTaskCreate(Task_StareApp, (signed portCHAR *)"T_app", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, NULL);
+	//xTaskCreate(Task_UartInterfaceMenu, (signed portCHAR *)"T_UIM", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL);
+	//xTaskCreate(Task_updateLCD, (signed portCHAR *)"T_ULCD", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL);
 
 	/* Finally start the scheduler. */
 	vTaskStartScheduler();
@@ -326,18 +326,10 @@ void initPLL(void)
 
 static void prvSetupHardware(void)
 {
-	ADPCFG = 0xFFFF; // make ADC pins all digital - adaugat
-	vParTestInitialise();
+	//ADPCFG = 0xFFFF; // make ADC pins all digital - adaugat
+	//vParTestInitialise();
 	initPLL();
 	LCD_init();
-	LCD_line(1);
-	LCD_printf("Task1:");
-	LCD_line(2);
-	LCD_printf("Task2:");
-	LCD_Goto(1, 13);
-	LCD_printf("FreeRTOS");
-	LCD_Goto(2, 14);
-	LCD_printf("01.2011");
 	// Initializare interfata UART1
 	xSerialPortInitMinimal(mainCOM_TEST_BAUD_RATE, comBUFFER_LEN);
 }

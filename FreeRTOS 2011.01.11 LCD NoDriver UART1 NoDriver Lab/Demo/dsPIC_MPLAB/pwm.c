@@ -1,7 +1,7 @@
 #include "pwm.h"
 // FCY e 40MHZ
 void initPwm(){
- TRISB&=(1<<PIN_SERVO); //setare RB10 ca output 
+ TRISB|=(1<<PIN_SERVO); //setare RB10 ca output 
 
  P1TCONbits.PTOPS = 0; // Timer base output scale 
  P1TCONbits.PTMOD = 0; // Free running 

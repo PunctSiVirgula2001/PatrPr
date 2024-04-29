@@ -9,7 +9,7 @@
 volatile int  ain4Buff[SAMP_BUFF_SIZE];
 volatile int  sampleCounter=0;
 
-//INITIALIZARE ADC PENTRU SCANARE CANAL AN4(RB2)
+//INITIALIZARE ADC PENTRU SCANARE CANAL AN4(RB2) merge la 3V
 void initAdc1(void)
 {
 		AD1CON1bits.AD12B = 1; // conversie AD pe 12 biti
@@ -19,7 +19,7 @@ void initAdc1(void)
 							   // unei conversii
 
 		AD1CON2bits.CSCNA = 1; // scaneaza intrarile pe CH0+ in timpul achizitiei A
-		AD1CON2bits.CHPS = 0;  // converteste doar CH0
+		AD1CON2bits.CHPS = 0;  // converteste pe CH0 si CH1
 		AD1CON2bits.SMPI = 0;  // incrementeaza adresa DMA dupa terminarea fiecarei
 							   // conversii
 
