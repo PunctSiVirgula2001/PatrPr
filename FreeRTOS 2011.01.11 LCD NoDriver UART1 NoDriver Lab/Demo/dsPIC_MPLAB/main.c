@@ -48,7 +48,7 @@ typedef enum states_app
 } state_app;
 
 // Default state is none
-state_app mod_lucru_curent = automatic;
+state_app mod_lucru_curent = none;
 
 typedef enum {false,true} bool;
 
@@ -81,22 +81,30 @@ void TaskPwmTemp(void *params)
 			// print to serial the temperature
 			//vSerialPutString(mainCOM_TEST_BAUD_RATE, "Temperature: ", 20);
 			//vSerialPutString(mainCOM_TEST_BAUD_RATE, getTemperatureString(), 20);
+			setDutyCycle(pwm_servo);
 		}
 		else if (mod_lucru_curent == manual)
 		{
 			voltage = getADCVal();
 			pwm_servo = (int)map_with_clamp(voltage, 0, 4095, PWM_SERVO_MIN, PWM_SERVO_MAX);
 			// print to serial the voltage
-			//vSerialPutString(mainCOM_TEST_BAUD_RATE, "Voltage potentiometer: ", 20);
-			//vSerialPutString(mainCOM_TEST_BAUD_RATE, getRB3StatusString(), 20);
+			vSerialPutString(mainCOM_TEST_BAUD_RATE, "Voltage potentiometer: ", 20);
+			vSerialPutString(mainCOM_TEST_BAUD_RATE, getRB3StatusString(), 20);
+			setDutyCycle(pwm_servo);
 		}
-		setDutyCycle(pwm_servo);
+		else if (mod_lucru_curent == temperatura)
+		{
+			// print to serial the temperature
+			vSerialPutString(mainCOM_TEST_BAUD_RATE, "Temperature: ", 20);
+			vSerialPutString(mainCOM_TEST_BAUD_RATE, getTemperatureString(), 20);
+		}
+		
 		vTaskDelay(250);
 	}
 }
 
 // Interrupt for button press on SW1
-volatile unsigned char app_on = 0U;
+volatile unsigned char app_on = 1U;
 volatile portTickType last_time = 0U;
 volatile portTickType current_time = 0U;
 unsigned char last_state_app = -1;
@@ -114,17 +122,17 @@ void __attribute__((interrupt, no_auto_psv)) _INT0Interrupt(void)
 
 void init_PORTB_AND_INT()
 {
-	TRISB = 0x0000;
+	//TRISB = 0x0000;
 	_TRISB7 = 1;  // RB7(Buton sw1 pe placuta) este setat ca intrare intrerupere
-	_TRISB15 = 0; // RB0 este setat ca iesire
-	_TRISB14 = 0;
-	_TRISB13 = 0;
-	_TRISB12 = 0;
+	 _TRISB1 = 0; // RB0 este setat ca iesire
+	// _TRISB14 = 0;
+	// _TRISB13 = 0;
+	// _TRISB12 = 0;
 
-	_RB12 = 1U;
-	_RB13 = 1U;
-	_RB14 = 1U;
-	_RB15 = 1U;
+	// _RB12 = 1U;
+	// _RB13 = 1U;
+	// _RB14 = 1U;
+	_RB1 = 1U;
 
 	_INT0IF = 0; // Resetem flagul coresp. intreruperii INT0
 	_INT0IE = 1; // Se permite lucrul cu întreruperea INT0
@@ -136,23 +144,23 @@ void Task_StareApp(void *params)
 	LCD_init();
 	LCD_On_Off(ON);
 	LCD_LED(ON);
-	clear();
+	clear();	
 	while (1)
 	{
 		if (app_on == 0)
 		{
 			last_state_app = app_on;
-			_RB15 ^= 1U; // aici trb rb0
+			_RB1 ^= 1U; // aici trb rb0
 			vTaskDelay(1000);
 		}
 		else if (app_on == 1)
 		{
 			last_state_app = app_on;
-			_RB15 = 0U;
+			_RB1 = 0U;
 		}
 		if (last_state_app != app_on)
 		{
-			vTaskDelay(50);
+			
 			// send to LCD queue the state of the app
 			if (app_on == 1)
 			{
@@ -165,6 +173,7 @@ void Task_StareApp(void *params)
 				xQueueSend(LCD_update_queue, &mod_lucru_curent, portMAX_DELAY);
 			}
 		}
+		vTaskDelay(50);
 	}
 }
 signed char input_user[1];
@@ -177,28 +186,30 @@ void Task_UartInterfaceMenu(void *params) // interogare mod de lucru, selectare 
 		if (app_on == 1)
 		{
 			xSerialGetChar(mainCOM_TEST_BAUD_RATE, &input_user, 100);
-			if (input_user[0] == 'r')
+
+			if (strcmp("r",input_user) == 0)
 			{ // when user inputs 'r' reset menu
 				reset_menu = true;
 				mod_lucru_curent = off;
-				app_on = 0;
+				//app_on = 0;
 				vSerialPutString(mainCOM_TEST_BAUD_RATE, "Reset: No mode active.\n\r", 20);
 			}
 		}
 
 		if (reset_menu == true && app_on == 1) // Display menu only once after reset
 		{
-			vSerialPutString(mainCOM_TEST_BAUD_RATE, "====Select work mode:====\n\r", 35);
+			vSerialPutString(mainCOM_TEST_BAUD_RATE, "==Select work mode:==\n\r", 35);
 			vSerialPutString(mainCOM_TEST_BAUD_RATE, "Automatic = '1'\n\r", 20);
 			vSerialPutString(mainCOM_TEST_BAUD_RATE, "Manual = '2'\n\r", 20);
-			vSerialPutString(mainCOM_TEST_BAUD_RATE, "Display temperature = '3'\n\r", 30);
-			vSerialPutString(mainCOM_TEST_BAUD_RATE, "Interogare mod = '4'\n\r", 30);
+			vSerialPutString(mainCOM_TEST_BAUD_RATE, "Display temperature = '3'\n\r", 20);
+			vSerialPutString(mainCOM_TEST_BAUD_RATE, "Interogare mod = '4'\n\r", 20);
 			// put a end line
 			vSerialPutString(mainCOM_TEST_BAUD_RATE, "\n\r", 20);
 			vTaskDelay(200);
 			reset_menu = false;
 			// Wait for user input
 			bool validInput = false;
+
 			while (!validInput || mod_lucru_curent == temperatura) // wait for valid input  // if temperature is selected, display it
 			{
 				// wait max time for user input
@@ -227,12 +238,15 @@ void Task_UartInterfaceMenu(void *params) // interogare mod de lucru, selectare 
 				else if(atoi(input_user) == interogare_mod)
 				{
 					// dont save the state in mod_lucru_curent
+					validInput = true;
 					vSerialPutString(mainCOM_TEST_BAUD_RATE, "Current work mode: ", 20);
 					vSerialPutString(mainCOM_TEST_BAUD_RATE, getStateString(mod_lucru_curent), 20);
 					vSerialPutString(mainCOM_TEST_BAUD_RATE, "\n\r", 20);
 				}
+
 				if(mod_lucru_curent == temperatura)
 				{
+					validInput = true;
 					vSerialPutString(mainCOM_TEST_BAUD_RATE, "Temperature: ", 20);
 					vSerialPutString(mainCOM_TEST_BAUD_RATE, getTemperatureString(), 20);
 					vSerialPutString(mainCOM_TEST_BAUD_RATE, " C\n\r", 20);
@@ -281,17 +295,18 @@ int main(void)
 {
 	RCONbits.SWDTEN=0;
 	prvSetupHardware();
-	//init_PORTB_AND_INT(); // init PORTB and INT0
+	
 	// queue for updating LCD
-	//LCD_update_queue = xQueueCreate(10, sizeof(state_app));
+	LCD_update_queue = xQueueCreate(10, sizeof(state_app));
 	initPwm(); // init PWM
 	init_ds1820(); // init DS1820
 	initAdc1(); // init ADC1
 	initTmr3(); // init TMR3
-	xTaskCreate(TaskPwmTemp, (signed portCHAR *)"TsC2", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL);
-	//xTaskCreate(Task_StareApp, (signed portCHAR *)"T_app", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, NULL);
-	//xTaskCreate(Task_UartInterfaceMenu, (signed portCHAR *)"T_UIM", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL);
-	//xTaskCreate(Task_updateLCD, (signed portCHAR *)"T_ULCD", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL);
+	init_PORTB_AND_INT(); // init PORTB and INT0
+	xTaskCreate(TaskPwmTemp, (signed portCHAR *)"TsC2", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, NULL);
+	xTaskCreate(Task_StareApp, (signed portCHAR *)"T_app", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, NULL);
+	xTaskCreate(Task_UartInterfaceMenu, (signed portCHAR *)"T_UIM", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, NULL);
+//	xTaskCreate(Task_updateLCD, (signed portCHAR *)"T_ULCD", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL);
 
 	/* Finally start the scheduler. */
 	vTaskStartScheduler();
@@ -326,7 +341,7 @@ void initPLL(void)
 
 static void prvSetupHardware(void)
 {
-	//ADPCFG = 0xFFFF; // make ADC pins all digital - adaugat
+	ADPCFG = 0xFFDF; // make ADC pins all digital - adaugat
 	//vParTestInitialise();
 	initPLL();
 	LCD_init();

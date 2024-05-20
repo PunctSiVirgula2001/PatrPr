@@ -2,11 +2,7 @@
 MagicCookie={0b13fe8c-dfe0-40eb-8900-6712719559a7}
 Version=1.0
 [File000]
-<<<<<<< HEAD
 Location=D:\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\dsPIC_MPLAB\main.o
-=======
-Location=C:\git\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\dsPIC_MPLAB\main.o
->>>>>>> adc-pwm-potentiometer
 Folder=Intermediary
 DeviceName=dsPIC33FJ128MC802
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -19,11 +15,7 @@ ToolArgsString=-fno-omit-frame-pointer -g -Wall -DMPLAB_DSPIC_PORT -O2 -fno-sche
 TraceCmdString=
 DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
 [File001]
-<<<<<<< HEAD
 Location=D:\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\source\list.o
-=======
-Location=C:\git\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\source\list.o
->>>>>>> adc-pwm-potentiometer
 Folder=Intermediary
 DeviceName=dsPIC33FJ128MC802
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -36,11 +28,7 @@ ToolArgsString=-fno-omit-frame-pointer -g -Wall -DMPLAB_DSPIC_PORT -O2 -fno-sche
 TraceCmdString=
 DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
 [File002]
-<<<<<<< HEAD
 Location=D:\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\source\queue.o
-=======
-Location=C:\git\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\source\queue.o
->>>>>>> adc-pwm-potentiometer
 Folder=Intermediary
 DeviceName=dsPIC33FJ128MC802
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -53,11 +41,7 @@ ToolArgsString=-fno-omit-frame-pointer -g -Wall -DMPLAB_DSPIC_PORT -O2 -fno-sche
 TraceCmdString=
 DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
 [File003]
-<<<<<<< HEAD
 Location=D:\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\source\tasks.o
-=======
-Location=C:\git\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\source\tasks.o
->>>>>>> adc-pwm-potentiometer
 Folder=Intermediary
 DeviceName=dsPIC33FJ128MC802
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -70,11 +54,7 @@ ToolArgsString=-fno-omit-frame-pointer -g -Wall -DMPLAB_DSPIC_PORT -O2 -fno-sche
 TraceCmdString=
 DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
 [File004]
-<<<<<<< HEAD
 Location=D:\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\source\portable\MPLAB\PIC24_dsPIC\port.o
-=======
-Location=C:\git\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\source\portable\MPLAB\PIC24_dsPIC\port.o
->>>>>>> adc-pwm-potentiometer
 Folder=Intermediary
 DeviceName=dsPIC33FJ128MC802
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -87,11 +67,7 @@ ToolArgsString=-fno-omit-frame-pointer -g -Wall -DMPLAB_DSPIC_PORT -O2 -fno-sche
 TraceCmdString=
 DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
 [File005]
-<<<<<<< HEAD
 Location=D:\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\source\portable\MemMang\heap_1.o
-=======
-Location=C:\git\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\source\portable\MemMang\heap_1.o
->>>>>>> adc-pwm-potentiometer
 Folder=Intermediary
 DeviceName=dsPIC33FJ128MC802
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -104,11 +80,7 @@ ToolArgsString=-fno-omit-frame-pointer -g -Wall -DMPLAB_DSPIC_PORT -O2 -fno-sche
 TraceCmdString=
 DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
 [File006]
-<<<<<<< HEAD
 Location=D:\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\Common\Minimal\BlockQ.o
-=======
-Location=C:\git\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\Common\Minimal\BlockQ.o
->>>>>>> adc-pwm-potentiometer
 Folder=Intermediary
 DeviceName=dsPIC33FJ128MC802
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -121,11 +93,7 @@ ToolArgsString=-fno-omit-frame-pointer -g -Wall -DMPLAB_DSPIC_PORT -O2 -fno-sche
 TraceCmdString=
 DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
 [File007]
-<<<<<<< HEAD
 Location=D:\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\source\croutine.o
-=======
-Location=C:\git\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\source\croutine.o
->>>>>>> adc-pwm-potentiometer
 Folder=Intermediary
 DeviceName=dsPIC33FJ128MC802
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -138,11 +106,7 @@ ToolArgsString=-fno-omit-frame-pointer -g -Wall -DMPLAB_DSPIC_PORT -O2 -fno-sche
 TraceCmdString=
 DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
 [File008]
-<<<<<<< HEAD
 Location=D:\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\Common\Minimal\crflash.o
-=======
-Location=C:\git\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\Common\Minimal\crflash.o
->>>>>>> adc-pwm-potentiometer
 Folder=Intermediary
 DeviceName=dsPIC33FJ128MC802
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -155,11 +119,7 @@ ToolArgsString=-fno-omit-frame-pointer -g -Wall -DMPLAB_DSPIC_PORT -O2 -fno-sche
 TraceCmdString=
 DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
 [File009]
-<<<<<<< HEAD
 Location=D:\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\dsPIC_MPLAB\ParTest\ParTest.o
-=======
-Location=C:\git\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\dsPIC_MPLAB\ParTest\ParTest.o
->>>>>>> adc-pwm-potentiometer
 Folder=Intermediary
 DeviceName=dsPIC33FJ128MC802
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -172,11 +132,7 @@ ToolArgsString=-fno-omit-frame-pointer -g -Wall -DMPLAB_DSPIC_PORT -O2 -fno-sche
 TraceCmdString=
 DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
 [File010]
-<<<<<<< HEAD
 Location=D:\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\Common\Minimal\blocktim.o
-=======
-Location=C:\git\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\Common\Minimal\blocktim.o
->>>>>>> adc-pwm-potentiometer
 Folder=Intermediary
 DeviceName=dsPIC33FJ128MC802
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -189,11 +145,7 @@ ToolArgsString=-fno-omit-frame-pointer -g -Wall -DMPLAB_DSPIC_PORT -O2 -fno-sche
 TraceCmdString=
 DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
 [File011]
-<<<<<<< HEAD
 Location=D:\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\Common\Minimal\integer.o
-=======
-Location=C:\git\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\Common\Minimal\integer.o
->>>>>>> adc-pwm-potentiometer
 Folder=Intermediary
 DeviceName=dsPIC33FJ128MC802
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -206,11 +158,7 @@ ToolArgsString=-fno-omit-frame-pointer -g -Wall -DMPLAB_DSPIC_PORT -O2 -fno-sche
 TraceCmdString=
 DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
 [File012]
-<<<<<<< HEAD
 Location=D:\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\dsPIC_MPLAB\timertest.o
-=======
-Location=C:\git\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\dsPIC_MPLAB\timertest.o
->>>>>>> adc-pwm-potentiometer
 Folder=Intermediary
 DeviceName=dsPIC33FJ128MC802
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -223,11 +171,7 @@ ToolArgsString=-fno-omit-frame-pointer -g -Wall -DMPLAB_DSPIC_PORT -O2 -fno-sche
 TraceCmdString=
 DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
 [File013]
-<<<<<<< HEAD
 Location=D:\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Source\portable\MPLAB\PIC24_dsPIC\portasm_dsPIC.o
-=======
-Location=C:\git\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Source\portable\MPLAB\PIC24_dsPIC\portasm_dsPIC.o
->>>>>>> adc-pwm-potentiometer
 Folder=Intermediary
 DeviceName=dsPIC33FJ128MC802
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -240,11 +184,7 @@ ToolArgsString=-g
 TraceCmdString=
 DebugOptions=--defsym=__DEBUG=1 --defsym=__MPLAB_DEBUGGER_PK3=1
 [File014]
-<<<<<<< HEAD
 Location=D:\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\dsPIC_MPLAB\new_lcd.o
-=======
-Location=C:\git\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\dsPIC_MPLAB\new_lcd.o
->>>>>>> adc-pwm-potentiometer
 Folder=Intermediary
 DeviceName=dsPIC33FJ128MC802
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -257,11 +197,7 @@ ToolArgsString=-fno-omit-frame-pointer -g -Wall -DMPLAB_DSPIC_PORT -O2 -fno-sche
 TraceCmdString=
 DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
 [File015]
-<<<<<<< HEAD
 Location=D:\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\Common\Minimal\comtest.o
-=======
-Location=C:\git\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\Common\Minimal\comtest.o
->>>>>>> adc-pwm-potentiometer
 Folder=Intermediary
 DeviceName=dsPIC33FJ128MC802
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -274,11 +210,7 @@ ToolArgsString=-fno-omit-frame-pointer -g -Wall -DMPLAB_DSPIC_PORT -O2 -fno-sche
 TraceCmdString=
 DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
 [File016]
-<<<<<<< HEAD
 Location=D:\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\dsPIC_MPLAB\new_serial.o
-=======
-Location=C:\git\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\dsPIC_MPLAB\new_serial.o
->>>>>>> adc-pwm-potentiometer
 Folder=Intermediary
 DeviceName=dsPIC33FJ128MC802
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -291,11 +223,7 @@ ToolArgsString=-fno-omit-frame-pointer -g -Wall -DMPLAB_DSPIC_PORT -O2 -fno-sche
 TraceCmdString=
 DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
 [File017]
-<<<<<<< HEAD
 Location=D:\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\dsPIC_MPLAB\pwm.o
-=======
-Location=C:\git\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\dsPIC_MPLAB\pwm.o
->>>>>>> adc-pwm-potentiometer
 Folder=Intermediary
 DeviceName=dsPIC33FJ128MC802
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -308,11 +236,7 @@ ToolArgsString=-fno-omit-frame-pointer -g -Wall -DMPLAB_DSPIC_PORT -O2 -fno-sche
 TraceCmdString=
 DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
 [File018]
-<<<<<<< HEAD
 Location=D:\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\dsPIC_MPLAB\ds18s20.o
-=======
-Location=C:\git\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\dsPIC_MPLAB\ds18s20.o
->>>>>>> adc-pwm-potentiometer
 Folder=Intermediary
 DeviceName=dsPIC33FJ128MC802
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -325,11 +249,7 @@ ToolArgsString=-fno-omit-frame-pointer -g -Wall -DMPLAB_DSPIC_PORT -O2 -fno-sche
 TraceCmdString=
 DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
 [File019]
-<<<<<<< HEAD
 Location=D:\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\dsPIC_MPLAB\util.o
-=======
-Location=C:\git\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\dsPIC_MPLAB\util.o
->>>>>>> adc-pwm-potentiometer
 Folder=Intermediary
 DeviceName=dsPIC33FJ128MC802
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -342,11 +262,7 @@ ToolArgsString=-fno-omit-frame-pointer -g -Wall -DMPLAB_DSPIC_PORT -O2 -fno-sche
 TraceCmdString=
 DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
 [File020]
-<<<<<<< HEAD
 Location=D:\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\dsPIC_MPLAB\adcDrv1.o
-=======
-Location=C:\git\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\dsPIC_MPLAB\adcDrv1.o
->>>>>>> adc-pwm-potentiometer
 Folder=Intermediary
 DeviceName=dsPIC33FJ128MC802
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -359,11 +275,7 @@ ToolArgsString=-fno-omit-frame-pointer -g -Wall -DMPLAB_DSPIC_PORT -O2 -fno-sche
 TraceCmdString=
 DebugOptions=-D__DEBUG -D__MPLAB_DEBUGGER_PK3=1
 [File021]
-<<<<<<< HEAD
 Location=D:\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\dsPIC_MPLAB\RTOSDemo_dsPIC.cof
-=======
-Location=C:\git\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\dsPIC_MPLAB\RTOSDemo_dsPIC.cof
->>>>>>> adc-pwm-potentiometer
 Folder=Output
 DeviceName=dsPIC33FJ128MC802
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
@@ -376,11 +288,7 @@ ToolArgsString=--defsym=__ICD2RAM=1 --report-mem -o"$(BINDIR_)$(TARGETBASE).$(TA
 TraceCmdString=
 DebugOptions=--defsym=__MPLAB_DEBUG=1 --defsym=__MPLAB_DEBUGGER_PK3=1 --defsym=__ICD2RAM=1
 [File022]
-<<<<<<< HEAD
 Location=D:\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\dsPIC_MPLAB\RTOSDemo_dsPIC.hex
-=======
-Location=C:\git\PatrPr\FreeRTOS 2011.01.11 LCD NoDriver UART1 NoDriver Lab\Demo\dsPIC_MPLAB\RTOSDemo_dsPIC.hex
->>>>>>> adc-pwm-potentiometer
 Folder=Output
 DeviceName=dsPIC33FJ128MC802
 LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}

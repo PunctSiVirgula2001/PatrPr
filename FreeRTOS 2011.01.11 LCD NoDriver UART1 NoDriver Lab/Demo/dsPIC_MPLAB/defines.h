@@ -18,7 +18,7 @@
 #define mainCOM_TEST_BAUD_RATE (9600)
 
 // Definire lungime coada UART1
-#define comBUFFER_LEN (100)
+#define comBUFFER_LEN (1000)
 
 /* We should find that each character can be queued for Tx immediately and we
 don't have to block to send. */
