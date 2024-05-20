@@ -90,13 +90,17 @@ void TaskPwmTemp(void *params)
 			// print to serial the voltage
 			vSerialPutString(mainCOM_TEST_BAUD_RATE, "Voltage potentiometer: ", 20);
 			vSerialPutString(mainCOM_TEST_BAUD_RATE, getRB3StatusString(), 20);
+			vSerialPutString(mainCOM_TEST_BAUD_RATE, "\r\n", 20);
 			setDutyCycle(pwm_servo);
+			
 		}
 		else if (mod_lucru_curent == temperatura)
 		{
 			// print to serial the temperature
 			vSerialPutString(mainCOM_TEST_BAUD_RATE, "Temperature: ", 20);
 			vSerialPutString(mainCOM_TEST_BAUD_RATE, getTemperatureString(), 20);
+			vSerialPutString(mainCOM_TEST_BAUD_RATE, "\r\n", 20);
+			mod_lucru_curent = none;
 		}
 		
 		vTaskDelay(250);
@@ -190,15 +194,24 @@ void Task_UartInterfaceMenu(void *params) // interogare mod de lucru, selectare 
 			if (strcmp("r",input_user) == 0)
 			{ // when user inputs 'r' reset menu
 				reset_menu = true;
-				mod_lucru_curent = off;
+				mod_lucru_curent = none;
 				//app_on = 0;
 				vSerialPutString(mainCOM_TEST_BAUD_RATE, "Reset: No mode active.\n\r", 20);
+			}
+			else if(atoi(input_user) == interogare_mod)
+			{
+				// dont save the state in mod_lucru_curent
+			//	validInput = true;
+				vSerialPutString(mainCOM_TEST_BAUD_RATE, "Current work mode: ", 20);
+				vSerialPutString(mainCOM_TEST_BAUD_RATE, getStateString(mod_lucru_curent), 20);
+				vSerialPutString(mainCOM_TEST_BAUD_RATE, "\n\r", 20);
+				input_user[0] = 24;
 			}
 		}
 
 		if (reset_menu == true && app_on == 1) // Display menu only once after reset
 		{
-			vSerialPutString(mainCOM_TEST_BAUD_RATE, "==Select work mode:==\n\r", 35);
+			vSerialPutString(mainCOM_TEST_BAUD_RATE, "\n\r==Select work mode:==\n\r", 35);
 			vSerialPutString(mainCOM_TEST_BAUD_RATE, "Automatic = '1'\n\r", 20);
 			vSerialPutString(mainCOM_TEST_BAUD_RATE, "Manual = '2'\n\r", 20);
 			vSerialPutString(mainCOM_TEST_BAUD_RATE, "Display temperature = '3'\n\r", 20);
@@ -220,6 +233,7 @@ void Task_UartInterfaceMenu(void *params) // interogare mod de lucru, selectare 
 					validInput = true;
 					xQueueSend(LCD_update_queue, &mod_lucru_curent, portMAX_DELAY); // send to LCD queue the selected work mode
 					vSerialPutString(mainCOM_TEST_BAUD_RATE, "Automatic mode selected.\n\r", 20);
+					input_user[0] = 24;
 				}
 				else if (atoi(input_user) == manual)
 				{
@@ -227,31 +241,16 @@ void Task_UartInterfaceMenu(void *params) // interogare mod de lucru, selectare 
 					validInput = true;
 					xQueueSend(LCD_update_queue, &mod_lucru_curent, portMAX_DELAY); // send to LCD queue the selected work mode
 					vSerialPutString(mainCOM_TEST_BAUD_RATE, "Manual mode selected.\n\r", 20);
+					input_user[0] = 24;
 				}
 				else if (atoi(input_user) == temperatura)
 				{
 					mod_lucru_curent = temperatura;
 					validInput = true;
 					xQueueSend(LCD_update_queue, &mod_lucru_curent, portMAX_DELAY); // send to LCD queue the selected work mode
-					vSerialPutString(mainCOM_TEST_BAUD_RATE, "Display temperature:.\n\r", 20);
+					vSerialPutString(mainCOM_TEST_BAUD_RATE, "Display temperature \n\r", 20);
+					input_user[0] = 24;
 				}
-				else if(atoi(input_user) == interogare_mod)
-				{
-					// dont save the state in mod_lucru_curent
-					validInput = true;
-					vSerialPutString(mainCOM_TEST_BAUD_RATE, "Current work mode: ", 20);
-					vSerialPutString(mainCOM_TEST_BAUD_RATE, getStateString(mod_lucru_curent), 20);
-					vSerialPutString(mainCOM_TEST_BAUD_RATE, "\n\r", 20);
-				}
-
-				if(mod_lucru_curent == temperatura)
-				{
-					validInput = true;
-					vSerialPutString(mainCOM_TEST_BAUD_RATE, "Temperature: ", 20);
-					vSerialPutString(mainCOM_TEST_BAUD_RATE, getTemperatureString(), 20);
-					vSerialPutString(mainCOM_TEST_BAUD_RATE, " C\n\r", 20);
-				}
-
 				vTaskDelay(50);
 			}
 		}
@@ -376,9 +375,8 @@ const char *getStateString(state_app state) // return string for state
 
 const char *getTemperatureString() // return string for temperature
 {
-	float temp = ds1820_read();
 	static char temp_str[5];
-	snprintf(temp_str, 5, "%.2f", temp);
+	snprintf(temp_str, 5, "%.2f", ds1820_read());
 	return temp_str;
 }
 
