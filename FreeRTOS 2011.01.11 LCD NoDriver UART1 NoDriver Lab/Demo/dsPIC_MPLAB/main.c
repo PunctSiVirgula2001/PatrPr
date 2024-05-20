@@ -108,7 +108,7 @@ void TaskPwmTemp(void *params)
 }
 
 // Interrupt for button press on SW1
-volatile unsigned char app_on = 1U;
+volatile unsigned char app_on = 0U;
 volatile portTickType last_time = 0U;
 volatile portTickType current_time = 0U;
 unsigned char last_state_app = -1;
@@ -154,7 +154,7 @@ void Task_StareApp(void *params)
 		if (app_on == 0)
 		{
 			last_state_app = app_on;
-			_RB1 ^= 1U; // aici trb rb0
+			_RB1 ^= 1U; // aici trb rb1
 			vTaskDelay(1000);
 		}
 		else if (app_on == 1)
@@ -177,7 +177,7 @@ void Task_StareApp(void *params)
 				xQueueSend(LCD_update_queue, &mod_lucru_curent, portMAX_DELAY);
 			}
 		}
-		vTaskDelay(50);
+		vTaskDelay(150);
 	}
 }
 signed char input_user[1];
@@ -276,17 +276,18 @@ void Task_updateLCD(void *params)
 
 	while (1)
 	{
-		// Receive a state and update accordingly
+		//Receive a state and update accordingly
 		if (xQueueReceive(LCD_update_queue, &received_state, 250) == pdTRUE)
 		{
 			// Construct and update lines based on the received state
-			constructAndUpdateLine(received_state, line1, line2);
+			//constructAndUpdateLine(received_state, line1, line2);
 		}
 		else
 		{ 	// when no state is received, update with the last received state and the read values
 			// Construct and update lines based on the last received state
-			constructAndUpdateLine(none, line1, line2);
+			//constructAndUpdateLine(none, line1, line2);
 		}
+		vTaskDelay(100);
 	}
 }
 
@@ -305,7 +306,7 @@ int main(void)
 	xTaskCreate(TaskPwmTemp, (signed portCHAR *)"TsC2", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, NULL);
 	xTaskCreate(Task_StareApp, (signed portCHAR *)"T_app", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, NULL);
 	xTaskCreate(Task_UartInterfaceMenu, (signed portCHAR *)"T_UIM", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, NULL);
-//	xTaskCreate(Task_updateLCD, (signed portCHAR *)"T_ULCD", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL);
+	//xTaskCreate(Task_updateLCD, (signed portCHAR *)"T_ULCD", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, NULL);
 
 	/* Finally start the scheduler. */
 	vTaskStartScheduler();
