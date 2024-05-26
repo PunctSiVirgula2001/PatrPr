@@ -112,7 +112,7 @@ volatile unsigned char app_on = 0U;
 volatile portTickType last_time = 0U;
 volatile portTickType current_time = 0U;
 unsigned char last_state_app = -1;
-void __attribute__((interrupt, no_auto_psv)) _INT0Interrupt(void)
+void __attribute__((interrupt, no_auto_psv)) _INT0Interrupt(void) // pentru buton sw1
 {
 	current_time = xTaskGetTickCount();
 	if (current_time - last_time > DEBOUNCE_MS)
@@ -229,6 +229,7 @@ void Task_UartInterfaceMenu(void *params) // interogare mod de lucru, selectare 
 				xSerialGetChar(mainCOM_TEST_BAUD_RATE, &input_user, 5000);
 				if (atoi(input_user) == automatic)
 				{
+					_RB1 = 0U;
 					mod_lucru_curent = automatic;
 					validInput = true;
 					xQueueSend(LCD_update_queue, &mod_lucru_curent, portMAX_DELAY); // send to LCD queue the selected work mode
@@ -237,6 +238,7 @@ void Task_UartInterfaceMenu(void *params) // interogare mod de lucru, selectare 
 				}
 				else if (atoi(input_user) == manual)
 				{
+					_RB1 = 1U;
 					mod_lucru_curent = manual;
 					validInput = true;
 					xQueueSend(LCD_update_queue, &mod_lucru_curent, portMAX_DELAY); // send to LCD queue the selected work mode
